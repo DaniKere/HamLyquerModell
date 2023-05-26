@@ -3,15 +3,16 @@ from tensorflow import keras
 import matplotlib.pyplot as  plt
 import numpy as np
 import os
+import time
 from tqdm import tqdm
 import cv2
 import random
 from PIL import Image
 from skimage.io import imread, imshow
 from skimage.transform import resize
-TRAIN_PATH ='Synthetic_MICCAI2020_dataset/Video_01/images'
-MASK_PATH  ='Synthetic_MICCAI2020_dataset/Video_01/mask'
-TEST_PATH = 'Synthetic_MICCAI2020_dataset/Video_01/test'
+TEST_PATH = 'Synthetic_MICCAI2020_dataset/Video_01/images'
+TRAIN_PATH ='Synthetic_MICCAI2020_dataset/Video_01/green_screen'
+MASK_PATH  ='Synthetic_MICCAI2020_dataset/Video_01/ground_truth'
 IMG_WIDTH =  512 #701
 IMG_HEIGHT = 512 #538
 IMG_CHANEL = 3
@@ -51,10 +52,11 @@ image_x = random.randint(0, len(train_ids))
 
 #plt.imshow(np.squeeze(Y_train[image_x]))
 #plt.show()
-if os.path.exists("/model_for_hus.h5"):
+if os.path.exists("kamu_model_for_hus.h5"):
     print("Betölt")
 else:
     #Build the model
+    start = time.time()
     inputs = tf.keras.layers.Input((IMG_WIDTH, IMG_HEIGHT, IMG_CHANEL))
     s= tf.keras.layers.Lambda(lambda x: x/255)(inputs)
 
@@ -115,18 +117,35 @@ else:
     #model.save('/model_for_hus.h5')
     checkpointer = tf.keras.callbacks.ModelCheckpoint('model_for_hus.h5', verbose = 1, save_best_only=True)
     callbacks = [tf.keras.callbacks.EarlyStopping(patience=2, monitor='val_loss'), tf.keras.callbacks.TensorBoard(log_dir = '/')]
-    results = model.fit(X_train, Y_train, validation_split=0.1, batch_size=16, epochs=5, callbacks=callbacks)
-results.save('/model_for_hus.h5')
+    results = model.fit(X_train, Y_train, validation_split=0.0001, batch_size=16, epochs=5, callbacks=callbacks)
+
+    try:
+        model.save('model_for_hus.h5')
+    except Exception as err:
+        print(err)
+
+    try:
+        model.save_weights('model_for_hus_weights.h5')
+    except Exception as err:
+        print(err)
+    
+    end = time.time()
+    tdiff = end - start
+    print('Finnished building model in {tdiff}')
+    print('With params: {results}')
+    print('')
+    
+
 idx = random.randint(0, len(X_train))
 
 preds_train = model.predict(X_train[:int(X_train.shape[0]*0.9)], verbose=1)
-preds_val = model.predict(X_train[int(X_train.shape[0]*0.9):], verbose=1)
-preds_test = model.predict(X_test, verbose=1)
+preds_val   = model.predict(X_train[int(X_train.shape[0]*0.9):], verbose=1)
+preds_test  = model.predict(X_test, verbose=1)
 
  
 preds_train_t = (preds_train > 0.5).astype(np.uint8)
-preds_val_t = (preds_val > 0.5).astype(np.uint8)
-preds_test_t = (preds_test > 0.5).astype(np.uint8)
+preds_val_t   = (preds_val   > 0.5).astype(np.uint8)
+preds_test_t  = (preds_test  > 0.5).astype(np.uint8)
 
 
 # Perform a sanity check on some random training samples
