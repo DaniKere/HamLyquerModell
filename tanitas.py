@@ -51,7 +51,7 @@ image_x = random.randint(0, len(train_ids))
 
 #plt.imshow(np.squeeze(Y_train[image_x]))
 #plt.show()
-if os.path.exists("/model_for_hus.h5"):
+if os.path.exists("model_for_hus.h5"):
     print("Betölt")
 else:
     #Build the model
@@ -114,9 +114,10 @@ else:
     model.summary()
     #model.save('/model_for_hus.h5')
     checkpointer = tf.keras.callbacks.ModelCheckpoint('model_for_hus.h5', verbose = 1, save_best_only=True)
-    callbacks = [tf.keras.callbacks.EarlyStopping(patience=2, monitor='val_loss'), tf.keras.callbacks.TensorBoard(log_dir = '/')]
-    results = model.fit(X_train, Y_train, validation_split=0.1, batch_size=16, epochs=5, callbacks=callbacks)
-results.save('/model_for_hus.h5')
+    callbacks = [tf.keras.callbacks.EarlyStopping(patience=2, monitor='val_loss'), tf.keras.callbacks.TensorBoard(log_dir = '/hazi')]
+    results = model.fit(X_train, Y_train, validation_split=0.1, batch_size=16, epochs=1, callbacks=callbacks)
+
+    model.save('model_for_hus.h5')
 idx = random.randint(0, len(X_train))
 
 preds_train = model.predict(X_train[:int(X_train.shape[0]*0.9)], verbose=1)
