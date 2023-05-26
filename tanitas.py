@@ -52,7 +52,7 @@ image_x = random.randint(0, len(train_ids))
 
 #plt.imshow(np.squeeze(Y_train[image_x]))
 #plt.show()
-if os.path.exists("kamu_model_for_hus.h5"):
+if os.path.exists("model_for_hus.h5"):
     print("Betölt")
 else:
     #Build the model
