@@ -31,6 +31,7 @@ else:
     checkpointer = tf.keras.callbacks.ModelCheckpoint('model_for_hus.h5', verbose = 1, save_best_only=True)
     callbacks = [tf.keras.callbacks.EarlyStopping(patience=2, monitor='val_loss'), tf.keras.callbacks.TensorBoard(log_dir = '/')]
     results = model.fit(X_train, Y_train, validation_split=0.0001, batch_size=16, epochs=5, callbacks=callbacks)
+    print('With params: {}'.format(results))
 
     md.save_model(model)
     end = time.time()
@@ -40,7 +41,6 @@ else:
 end = time.time()
 tdiff = end - start
 print('Finnished model in {}'.format(tdiff))
-print('With params: {}'.format(results))
 print('')
     
 
