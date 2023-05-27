@@ -12,23 +12,19 @@ from itertools import chain
 
 
 image_folder = [f for f in os.listdir(md.FOLDER_PATH) if os.path.isdir(os.path.join(md.FOLDER_PATH, f))]
-TRAIN_PATH =""
-MASK_PATH  =""
 
-X_train = np.zeros((1, md.IMG_HEIGHT, md.IMG_WIDTH, md.IMG_CHANEL), dtype=np.uint8) #feltölti 0-kal
-Y_train = np.zeros((1, md.IMG_HEIGHT, md.IMG_WIDTH, 1), dtype = np.bool)
+X_train = np.zeros((0, md.IMG_HEIGHT, md.IMG_WIDTH, md.IMG_CHANEL), dtype=np.uint8) #feltölti 0-kal
+Y_train = np.zeros((0, md.IMG_HEIGHT, md.IMG_WIDTH, 1), dtype=bool)
 
-for all_f in image_folder: 
-          
+for all_f in image_folder:
     TRAIN_PATH =   md.FOLDER_PATH +"/"+ all_f +"/images"      
     MASK_PATH  =   md.FOLDER_PATH +"/"+ all_f +"/ground_truth"
-    if "video".lower() in all_f.lower():                    
-        X_train_temp, Y_train_temp = md.load_traning_images(TRAIN_PATH, MASK_PATH, len(f for f in os.listdir(md.FOLDER_PATH) if os.path.isfile(os.path.join(md.FOLDER_PATH, f))))
-        
-    X_train = list(chain(X_train, X_train_temp))
-    Y_train = list(chain(Y_train, Y_train_temp))
+    if "video" in all_f.lower():                    
+        X_train_temp, Y_train_temp = md.load_traning_images(TRAIN_PATH, MASK_PATH)
+        X_train = list(chain(X_train, X_train_temp))
+        Y_train = list(chain(Y_train, Y_train_temp))
     
-X_test_ = md.load_images(md.TEST_PATH, 300)
+X_test = md.load_images(md.TEST_PATH, 300)
 
 
 print('Done!')

@@ -1,7 +1,6 @@
-# HamLyquerModell
 # HamLyquerModel
 
 ## Install
 ```
-pip install tensorflow keras numpy matplotlib tqdm opencv-python --user
+pip install tensorflow==2.10 keras numpy matplotlib tqdm opencv-python scikit-image --user
 ```
