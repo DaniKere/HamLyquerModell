@@ -1,4 +1,9 @@
 import tensorflow as tf
+from tqdm import tqdm
+import os
+import numpy as np
+from skimage.io import imread
+from skimage.transform import resize
 
 TEST_PATH = 'Synthetic_MICCAI2020_dataset/Video_01/images'
 TRAIN_PATH ='Synthetic_MICCAI2020_dataset/Video_01/green_screen'
@@ -8,8 +13,12 @@ IMG_WIDTH =  512 #701
 IMG_HEIGHT = 512 #538
 IMG_CHANEL = 3
 
-MODEL_PATH   = 'models/model_for_hus.h5'
+# Not used
+#MODEL_PATH   = 'models/model_for_hus.h5'
 WEIGHTS_PATH = 'models/model_for_hus_weights.h5'
+
+def model_exists():
+    return os.path.exists(WEIGHTS_PATH)
 
 def create_model():
     inputs = tf.keras.layers.Input((IMG_WIDTH, IMG_HEIGHT, IMG_CHANEL))
@@ -70,3 +79,40 @@ def create_model():
     model.compile(optimizer='adam', loss='binary_crossentropy', metrics=['accuracy'])
 
     return model
+
+def save_model(model: tf.keras.models.Model):
+    model.save_weights(WEIGHTS_PATH)
+
+def load_traning_images(train_path, mask_path):
+    train_ids = os.listdir(mask_path)
+    X_train = np.zeros((len(train_ids), IMG_HEIGHT, IMG_WIDTH, IMG_CHANEL), dtype=np.uint8) #feltölti 0-kal
+    Y_train = np.zeros((len(train_ids), IMG_HEIGHT, IMG_WIDTH, 1), dtype = np.bool)
+
+    for n, id_ in tqdm(enumerate(train_ids), total=len(train_ids)):   
+        path = train_path + '/' + id_
+        img = imread(path)[:,:,:IMG_CHANEL]
+        img = resize(img, (IMG_HEIGHT, IMG_WIDTH), mode='constant', preserve_range=True)
+        X_train[n] = img  #Fill empty X_train with values from img
+        
+        mask   = np.zeros((IMG_HEIGHT, IMG_WIDTH, 1), dtype=np.bool)
+        t_path = mask_path + '/' + id_   
+        bi     = imread(t_path)[:,:,:1]
+        bi     = resize(bi, (IMG_HEIGHT, IMG_WIDTH), mode='constant', preserve_range=True)
+        mask   = np.reshape(bi, (IMG_HEIGHT, IMG_WIDTH, 1))
+        
+        Y_train[n] = mask
+
+    return X_train, Y_train
+
+def load_images(img_path):
+    test_ids = os.listdir(img_path)
+    X_test = np.zeros((len(test_ids), IMG_HEIGHT, IMG_WIDTH, IMG_CHANEL), dtype=np.uint8)
+    sizes_test = []
+    print('load test images')
+    for n, id_ in tqdm(enumerate(test_ids), total=len(test_ids)):
+        path_husos = img_path + '/' + id_
+        img = imread(path_husos)
+        img =resize(img, (IMG_HEIGHT, IMG_WIDTH), mode='constant', preserve_range=True)
+        X_test[n] = img
+
+    return X_test
