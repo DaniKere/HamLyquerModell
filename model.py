@@ -5,10 +5,11 @@ import numpy as np
 from skimage.io import imread
 from skimage.transform import resize
 
-# Image paths
-TEST_PATH = 'Synthetic_MICCAI2020_dataset/Video_01/images'
-TRAIN_PATH ='Synthetic_MICCAI2020_dataset/Video_01/green_screen'
-MASK_PATH  ='Synthetic_MICCAI2020_dataset/Video_01/ground_truth'
+# Image pathsSynthetic_MICCAI2020_dataset\others\Video_17\images
+TEST_PATH =         'Synthetic_MICCAI2020_dataset/others/images'
+#TRAIN_PATH =          #'Synthetic_MICCAI2020_dataset/Video_01/green_screen'
+#MASK_PATH  =          #'Synthetic_MICCAI2020_dataset/Video_01/ground_truth'
+FOLDER_PATH = 'Synthetic_MICCAI2020_dataset'
 IMG_WIDTH =  512 #701
 IMG_HEIGHT = 512 #538
 IMG_CHANEL = 3
@@ -98,7 +99,6 @@ def load_traning_images(train_path, mask_path, maxnum = -1):
     for n, id_ in tqdm(enumerate(train_ids), total=load_len):
         if n >= load_len:
             break
-
         path = train_path + '/' + id_
         img = imread(path)[:,:,:IMG_CHANEL]
         img = resize(img, (IMG_HEIGHT, IMG_WIDTH), mode='constant', preserve_range=True)

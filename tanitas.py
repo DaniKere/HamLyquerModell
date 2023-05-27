@@ -7,10 +7,29 @@ import time
 import random
 import numpy as np
 from skimage.io import imshow
+import os
+from itertools import chain
 
 
-X_train, Y_train = md.load_traning_images(md.TRAIN_PATH, md.MASK_PATH, 10)
-X_test = md.load_images(md.TEST_PATH, 10)
+image_folder = [f for f in os.listdir(md.FOLDER_PATH) if os.path.isdir(os.path.join(md.FOLDER_PATH, f))]
+TRAIN_PATH =""
+MASK_PATH  =""
+
+X_train = np.zeros((1, md.IMG_HEIGHT, md.IMG_WIDTH, md.IMG_CHANEL), dtype=np.uint8) #feltölti 0-kal
+Y_train = np.zeros((1, md.IMG_HEIGHT, md.IMG_WIDTH, 1), dtype = np.bool)
+
+for all_f in image_folder: 
+          
+    TRAIN_PATH =   md.FOLDER_PATH +"/"+ all_f +"/images"      
+    MASK_PATH  =   md.FOLDER_PATH +"/"+ all_f +"/ground_truth"
+    if "video".lower() in all_f.lower():                    
+        X_train_temp, Y_train_temp = md.load_traning_images(TRAIN_PATH, MASK_PATH, len(f for f in os.listdir(md.FOLDER_PATH) if os.path.isfile(os.path.join(md.FOLDER_PATH, f))))
+        
+    X_train = list(chain(X_train, X_train_temp))
+    Y_train = list(chain(Y_train, Y_train_temp))
+    
+X_test_ = md.load_images(md.TEST_PATH, 300)
+
 
 print('Done!')
   
@@ -44,20 +63,23 @@ print('Finnished model in {}'.format(tdiff))
 print('')
 
 
-preds_train = model.predict(X_train[:int(X_train.shape[0]*0.9)], verbose=1)
-preds_val   = model.predict(X_train[int(X_train.shape[0]*0.9):], verbose=1)
-preds_test  = model.predict(X_test, verbose=1)
+preds_train = model.predict(X_train)
+preds_val   = model.predict(X_train)
+preds_test  = model.predict(X_test )
 
  
 preds_train_t = (preds_train > 0.5).astype(np.uint8)
 ix = random.randint(0, len(preds_train) - 1)
 
 
-print('type: {} -> {}'.format(type(preds_train), type(preds_train[ix])))
+#print('type: {} -> {}'.format(type(preds_train), type(preds_train[ix])))
 img         = X_test[ix]
 overlayable = np.squeeze(((preds_train[ix] > .5) * 255).astype(np.uint8))
+plt.figure("in")
+imshow(img)
 imshow(mp.create_overlayed_image(img, overlayable))
 plt.show()
+a=3
 
 
 
