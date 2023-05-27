@@ -13,6 +13,8 @@ IMG_WIDTH =  512 #701
 IMG_HEIGHT = 512 #538
 IMG_CHANEL = 3
 
+#
+
 # Not used
 #MODEL_PATH   = 'models/model_for_hus.h5'
 WEIGHTS_PATH = 'models/model_for_hus_weights.h5'
