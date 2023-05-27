@@ -1,4 +1,5 @@
 import model as md
+import make_markup_images as mp
 import tensorflow as tf
 from tensorflow import keras
 import matplotlib.pyplot as  plt
@@ -51,27 +52,30 @@ preds_val   = model.predict(X_train[int(X_train.shape[0]*0.9):], verbose=1)
 preds_test  = model.predict(X_test, verbose=1)
 
  
-preds_train_t = (preds_train > 0.5).astype(np.uint8)
-preds_val_t   = (preds_val   > 0.5).astype(np.uint8)
-preds_test_t  = (preds_test  > 0.5).astype(np.uint8)
+#preds_train_t = (preds_train > 0.5).astype(np.uint8)
+#preds_val_t   = (preds_val   > 0.5).astype(np.uint8)
+#preds_test_t  = (preds_test  > 0.5).astype(np.uint8)
 
 
 # Perform a sanity check on some random training samples
-ix = random.randint(0, len(preds_train_t))
+ix = random.randint(0, len(preds_train) - 1)
 imshow(X_test[ix])
 plt.show()
-imshow(np.squeeze(Y_train[ix]))
+imshow(np.squeeze(preds_train[ix]))
 plt.show()
-imshow(np.squeeze(preds_train_t[ix]))
+
+print('type: {}'.format(type(preds_train[ix])))
+imshow(mp.markup_from_image(Image.fromarray((preds_train[ix] * 255).astype(np.uint8))))
 plt.show()
+
 
 # Perform a sanity check on some random validation samples
 
-ix = random.randint(0, len(preds_val_t))
+ix = random.randint(0, len(preds_val))
 imshow(X_train[int(X_train.shape[0]*0.9):][ix])
 plt.show()
-imshow(np.squeeze(Y_train[int(Y_train.shape[0]*0.9):][ix]))
+imshow(np.squeeze(preds_val[ix]))
 plt.show()
-imshow(np.squeeze(preds_val_t[ix]))
-plt.show()
+
+
 

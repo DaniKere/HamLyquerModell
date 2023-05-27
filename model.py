@@ -5,10 +5,10 @@ import numpy as np
 from skimage.io import imread
 from skimage.transform import resize
 
+# Image paths
 TEST_PATH = 'Synthetic_MICCAI2020_dataset/Video_01/images'
 TRAIN_PATH ='Synthetic_MICCAI2020_dataset/Video_01/green_screen'
 MASK_PATH  ='Synthetic_MICCAI2020_dataset/Video_01/ground_truth'
-
 IMG_WIDTH =  512 #701
 IMG_HEIGHT = 512 #538
 IMG_CHANEL = 3
