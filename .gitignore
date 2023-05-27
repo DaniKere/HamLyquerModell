@@ -1,3 +1,5 @@
 Synthetic_MICCAI2020_dataset/
 #*.h5
 __pycache__/
+dummyvideo/
+data/
