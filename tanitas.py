@@ -10,8 +10,8 @@ import numpy as np
 from skimage.io import imshow
 
 
-X_train, Y_train = md.load_traning_images(md.TRAIN_PATH, md.MASK_PATH)
-X_test = md.load_images(md.TEST_PATH)
+X_train, Y_train = md.load_traning_images(md.TRAIN_PATH, md.MASK_PATH, 10)
+X_test = md.load_images(md.TEST_PATH, 10)
 
 print('Done!')
   

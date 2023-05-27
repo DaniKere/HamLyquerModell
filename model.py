@@ -83,12 +83,20 @@ def create_model():
 def save_model(model: tf.keras.models.Model):
     model.save_weights(WEIGHTS_PATH)
 
-def load_traning_images(train_path, mask_path):
+def load_traning_images(train_path, mask_path, maxnum = -1):
     train_ids = os.listdir(mask_path)
-    X_train = np.zeros((len(train_ids), IMG_HEIGHT, IMG_WIDTH, IMG_CHANEL), dtype=np.uint8) #feltölti 0-kal
-    Y_train = np.zeros((len(train_ids), IMG_HEIGHT, IMG_WIDTH, 1), dtype = np.bool)
+    if maxnum >= 0 and len(train_ids) > maxnum:
+        load_len = maxnum
+    else:
+        load_len = len(train_ids)
 
-    for n, id_ in tqdm(enumerate(train_ids), total=len(train_ids)):   
+    X_train = np.zeros((load_len, IMG_HEIGHT, IMG_WIDTH, IMG_CHANEL), dtype=np.uint8) #feltölti 0-kal
+    Y_train = np.zeros((load_len, IMG_HEIGHT, IMG_WIDTH, 1), dtype = np.bool)
+
+    for n, id_ in tqdm(enumerate(train_ids), total=load_len):
+        if n >= load_len:
+            break
+
         path = train_path + '/' + id_
         img = imread(path)[:,:,:IMG_CHANEL]
         img = resize(img, (IMG_HEIGHT, IMG_WIDTH), mode='constant', preserve_range=True)
@@ -104,12 +112,20 @@ def load_traning_images(train_path, mask_path):
 
     return X_train, Y_train
 
-def load_images(img_path):
+def load_images(img_path, maxnum = -1):
     test_ids = os.listdir(img_path)
-    X_test = np.zeros((len(test_ids), IMG_HEIGHT, IMG_WIDTH, IMG_CHANEL), dtype=np.uint8)
-    sizes_test = []
+    if maxnum >= 0 and len(test_ids) > maxnum:
+        load_len = maxnum
+    else:
+        load_len = len(test_ids)
+
+    X_test = np.zeros((load_len, IMG_HEIGHT, IMG_WIDTH, IMG_CHANEL), dtype=np.uint8)
+
     print('load test images')
-    for n, id_ in tqdm(enumerate(test_ids), total=len(test_ids)):
+    for n, id_ in tqdm(enumerate(test_ids), total=load_len):
+        if n >= load_len:
+            break
+
         path_husos = img_path + '/' + id_
         img = imread(path_husos)
         img =resize(img, (IMG_HEIGHT, IMG_WIDTH), mode='constant', preserve_range=True)
