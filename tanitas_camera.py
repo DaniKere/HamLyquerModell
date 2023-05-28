@@ -7,16 +7,15 @@ import time
 import random
 import numpy as np
 from skimage.io import imshow
-
-
+import cv2
 #X_train = np.zeros((0, md.IMG_HEIGHT, md.IMG_WIDTH, md.IMG_CHANEL), dtype=np.uint8) #feltölti 0-kal
 #Y_train = np.zeros((0, md.IMG_HEIGHT, md.IMG_WIDTH, 1), dtype=bool)
 
-start = time.time()
+
 model = md.create_model()
 
 if md.model_exists():
-    print("Betölt")
+    print("Load Model Weights")
     model.load_weights(md.WEIGHTS_PATH)
 else:
     print("Build")
@@ -29,27 +28,44 @@ else:
     print('With params: {}'.format(results))
 
     md.save_model(model)
-    end = time.time()
-    tdiff = end - start
-    print('Finnished building model in {}'.format(tdiff))
+    print('Finished model')
+
+
+a="c"
+
+if a=="c":
+
+    video_=cv2.VideoCapture(0)
     
-end = time.time()
-tdiff = end - start
-print('Finnished model in {}'.format(tdiff))
-print('')
+    if not video_.isOpened():
+        print('Faild to open the camera')
+    else:
+        
+        while True:
+            ret, frame = video_.read()
+        
+            org_=md.load_images_camera(frame)
+            cv2.imshow("db",org_[0])
+            preds_test  = model.predict(org_)
+            
+            cv2.imshow("in",frame)
+            overlayable = np.squeeze(((preds_test[0] > .5) * 255).astype(np.uint8))    
+            cv2.imshow("out",mp.create_overlayed_image(org_[0], overlayable))    
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+else:
+    X_test = md.load_images(md.TEST_PATH, ind=md.INDIVIDUAL_IMG_PATH)
+    preds_test  = model.predict(X_test)    
 
-
-X_test = md.load_images(md.TEST_PATH, 300)
-
-preds_test  = model.predict(X_test)
-
- 
-
-ix = random.randint(0, len(preds_test) - 1)
-
-for i in range(0, len(preds_test)-1):
-    img         = X_test[i]
-    overlayable = np.squeeze(((preds_test[i] > .5) * 255).astype(np.uint8))
-    imshow(mp.create_overlayed_image(img, overlayable))
-    plt.show()
-
+    #ix = random.randint(0, len(preds_test) - 1)
+    if len(X_test) == 1:
+        img  = X_test[0]
+        overlayable = np.squeeze(((preds_test[0] > .5) * 255).astype(np.uint8))
+        imshow(mp.create_overlayed_image(img, overlayable))
+        plt.show()
+#else:   
+#        for i in range(0, len(preds_test)-1):
+#            imgs = X_test[i]
+#            overlayable = np.squeeze(((preds_test[i] > .5) * 255).astype(np.uint8))
+#            imshow(mp.create_overlayed_image(imgs, overlayable))
+#            plt.show()

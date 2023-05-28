@@ -3,3 +3,4 @@ Synthetic_MICCAI2020_dataset/
 __pycache__/
 dummyvideo/
 data/
+tmp/
