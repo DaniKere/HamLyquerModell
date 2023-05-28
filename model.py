@@ -6,7 +6,7 @@ from skimage.io import imread
 from skimage.transform import resize
 
 # Image pathsSynthetic_MICCAI2020_dataset\others\Video_17\images
-TEST_PATH =         'Synthetic_MICCAI2020_dataset/others/Video_17/images'
+TESTS_PATH =         'Synthetic_MICCAI2020_dataset/others'
 #TRAIN_PATH =          #'Synthetic_MICCAI2020_dataset/Video_01/green_screen'
 #MASK_PATH  =          #'Synthetic_MICCAI2020_dataset/Video_01/ground_truth'
 FOLDER_PATH = 'Synthetic_MICCAI2020_dataset'
@@ -31,7 +31,7 @@ WEIGHTS_PATH = 'models/model_for_hus_weights.h5'
 numeric = 0
 def debug_print():
     global numeric
-    print(numeric)
+    #print(numeric)
     numeric += 1
 
 def model_exists():
@@ -117,13 +117,24 @@ def train_model(model: tf.keras.Model, validation_split, batch_size, epochs, cal
     results = []
     for all_f in image_folder:
         if "video" in all_f.lower():     
-            TRAIN_PATH =   FOLDER_PATH +"/"+ all_f +"/images"      
-            MASK_PATH  =   FOLDER_PATH +"/"+ all_f +"/ground_truth"               
-            X_train, Y_train = load_traning_images(TRAIN_PATH, MASK_PATH)
+            train_path =   FOLDER_PATH +"/"+ all_f +"/images"      
+            mask_path  =   FOLDER_PATH +"/"+ all_f +"/ground_truth"               
+            X_train, Y_train = load_traning_images(train_path, mask_path)
             for x in range(0, len(X_train), TRAIN_SEP):
                 x_tmp = X_train[x:x+TRAIN_SEP]
                 y_tmp = Y_train[x:x+TRAIN_SEP]
                 results.append(model.fit(x_tmp, y_tmp, validation_split=validation_split, batch_size=batch_size, epochs=epochs, callbacks=callbacks))
+    return results
+
+def evaluate_model(model: tf.keras.Model, batch_size, callbacks):
+    image_folder = [f for f in os.listdir(TESTS_PATH) if os.path.isdir(os.path.join(TESTS_PATH, f))]
+    results = []
+    for all_f in image_folder:
+        if "video" in all_f.lower():     
+            train_path =   TESTS_PATH +"/"+ all_f +"/images"      
+            mask_path  =   TESTS_PATH +"/"+ all_f +"/ground_truth"               
+            X_eval, Y_eval = load_traning_images(train_path, mask_path)
+            results.append(model.evaluate(X_eval, Y_eval, batch_size=batch_size, callbacks=callbacks))
     return results
 
 def save_model(model: tf.keras.models.Model):

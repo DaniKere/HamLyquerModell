@@ -15,6 +15,8 @@ from skimage.io import imshow
 start = time.time()
 model = md.create_model()
 
+callbacks = [tf.keras.callbacks.EarlyStopping(patience=2, monitor='val_loss'), tf.keras.callbacks.TensorBoard(log_dir = '/')]
+
 if md.model_exists():
     print("Betölt")
     model.load_weights(md.WEIGHTS_PATH)
@@ -23,8 +25,6 @@ else:
 
     #Build the model
     model.summary()
-    checkpointer = tf.keras.callbacks.ModelCheckpoint('model_for_hus.h5', verbose = 1, save_best_only=True)
-    callbacks = [tf.keras.callbacks.EarlyStopping(patience=2, monitor='val_loss'), tf.keras.callbacks.TensorBoard(log_dir = '/')]
     results = md.train_model(model=model, validation_split=0.0001, batch_size=16, epochs=5, callbacks=callbacks)
     print('With params: {}'.format(results))
 
@@ -39,8 +39,12 @@ print('Finnished model in {}'.format(tdiff))
 print('')
 
 
-X_test = md.load_images(md.TEST_PATH, 300)
 
+# ecaluation
+md.evaluate_model(model=model, batch_size=16, callbacks=callbacks)
+
+
+X_test = md.load_images(md.TEST_PATH, 300)
 preds_test  = model.predict(X_test)
 
  
