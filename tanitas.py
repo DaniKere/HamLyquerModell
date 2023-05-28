@@ -41,19 +41,20 @@ print('')
 
 
 # ecaluation
-md.evaluate_model(model=model, batch_size=16, callbacks=callbacks)
+#md.evaluate_model(model=model, batch_size=16, callbacks=callbacks)
 
 
-X_test = md.load_images(md.TEST_PATH, 300)
+X_test = md.load_images(md.TESTS_PATH + '/Video_19/images', 300)
 preds_test  = model.predict(X_test)
 
  
 
 ix = random.randint(0, len(preds_test) - 1)
 
-for i in range(0, len(preds_test)-1):
-    img         = X_test[i]
-    overlayable = np.squeeze(((preds_test[i] > .5) * 255).astype(np.uint8))
-    imshow(mp.create_overlayed_image(img, overlayable))
-    plt.show()
+
+#for i in range(0, len(preds_test)-1):
+img         = X_test[ix]
+overlayable = np.squeeze(((preds_test[ix] > .5) * 255).astype(np.uint8))
+imshow(mp.create_overlayed_image(img, overlayable))
+plt.show()
 
