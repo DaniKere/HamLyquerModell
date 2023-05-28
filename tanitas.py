@@ -41,24 +41,15 @@ print('')
 
 X_test = md.load_images(md.TEST_PATH, 300)
 
-#preds_train = model.predict(X_train[0])
-#preds_val   = model.predict(X_train[0])
-preds_test  = model.predict(X_test [0])
+preds_test  = model.predict(X_test)
 
  
-preds_train_t = (preds_test > 0.5).astype(np.uint8)
-ix = random.randint(0, len(preds_train_t) - 1)
 
+ix = random.randint(0, len(preds_test) - 1)
 
-#print('type: {} -> {}'.format(type(preds_train), type(preds_train[ix])))
-img         = X_test[ix]
-overlayable = np.squeeze(((preds_train_t[ix] > .5) * 255).astype(np.uint8))
-plt.figure("in")
-imshow(img)
-imshow(mp.create_overlayed_image(img, overlayable))
-plt.show()
-a=3
-
-
-
+for i in range(0, len(preds_test)-1):
+    img         = X_test[i]
+    overlayable = np.squeeze(((preds_test[i] > .5) * 255).astype(np.uint8))
+    imshow(mp.create_overlayed_image(img, overlayable))
+    plt.show()
 

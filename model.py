@@ -6,7 +6,7 @@ from skimage.io import imread
 from skimage.transform import resize
 
 # Image pathsSynthetic_MICCAI2020_dataset\others\Video_17\images
-TEST_PATH =         'Synthetic_MICCAI2020_dataset/others/images'
+TEST_PATH =         'Synthetic_MICCAI2020_dataset/others/Video_17/images'
 #TRAIN_PATH =          #'Synthetic_MICCAI2020_dataset/Video_01/green_screen'
 #MASK_PATH  =          #'Synthetic_MICCAI2020_dataset/Video_01/ground_truth'
 FOLDER_PATH = 'Synthetic_MICCAI2020_dataset'
