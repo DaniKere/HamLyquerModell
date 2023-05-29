@@ -11,7 +11,7 @@ import numpy as np
 
 pathVideo = "dummyvideo"
 dummyVideo = pathVideo + "\\mouse.mp4"
-pathImages = "data\\"
+pathImages = "images\\"
 
 # Create vide from frames
 def videBuilder(imgArr):
@@ -24,7 +24,7 @@ def videBuilder(imgArr):
     for i in range(len(imgArr)):
         out.write(imgArr[i])
     out.release()
-    
+ 
         
     # Create images from video
 def videoSlicer(videoInputPath, model):
@@ -73,3 +73,35 @@ def videoSlicer(videoInputPath, model):
     cv2.destroyAllWindows() 
         
 # videoSlicer(dummyVideo)
+
+
+
+# # Pathname sorter
+# def extract_number(filename):
+#     # Extract the numeric part from the filename
+#     match = re.search(r'\d+', filename)
+#     if match:
+#         return int(match.group())
+#     return 0
+
+# # Create vide from frames
+# def videBuilder(pathImages):
+#     img_array = []
+#     filenames = glob.glob(pathImages + '*.png')
+#     # Sort the filenames
+#     sorted_filenames = sorted(filenames, key=extract_number)
+
+#     for filename in sorted_filenames:
+#         img = cv2.imread(filename)
+#         height, width, layers = img.shape
+#         size = (width,height)
+#         img_array.append(img)
+
+#     out = cv2.VideoWriter('images\\video.mp4',cv2.VideoWriter_fourcc(*'MP4V'), 30, size)
+
+#     for i in range(len(img_array)):
+#         out.write(img_array[i])
+#     out.release()
+    
+    
+# videBuilder(pathImages)
