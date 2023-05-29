@@ -1,136 +1,5 @@
 
 
-# from tkinter import *
-# from tkinter import ttk
-# from PIL import ImageTk, Image
-# import numpy as np
-# import glob
-# import re
-# import cv2
-
-
-
-
-
-# def donothing():
-#   print("Action")
-
-# def streamModeAction():
-#     if var.get():
-#         print("Checkbutton is selected.")
-#     else:
-#         print("Checkbutton is not selected.")
-
-# # Pathname sorter
-# def extract_number(filename):
-#     # Extract the numeric part from the filename
-#     match = re.search(r'\d+', filename)
-#     if match:
-#         return int(match.group())
-#     return 0
-
-# def videBuilder(pathImages):
-#     img_array = []
-#     filenames = glob.glob(pathImages + '*.png')
-#     # Sort the filenames
-#     sorted_filenames = sorted(filenames, key=extract_number)
-
-#     for filename in sorted_filenames:
-#         img = cv2.imread(filename)
-#         height, width, layers = img.shape
-#         size = (width,height)
-#         img_array.append(img)
-   
-#     out = cv2.VideoWriter('video.mp4',cv2.VideoWriter_fourcc(*'MP4V'), 30, size)
-
-#     for i in range(len(img_array)):
-#         out.write(img_array[i])
-#     out.release()
-
-
-
-
-# class Picture:
-#     def __init__(self, parent):
-#         self.parent = parent
-#         img = Image.open(file='C:\\workingdir\\orvosirobotika\\HamLyquerModell\\data\\frame0.png')
-#         resized_image = img.resize((300,205), Image.ANTIALIAS)
-#         new_image= ImageTk.PhotoImage(resized_image)
-
-#         self.label = ttk.Label(self.parent)
-#         self.label['image'] = img
-#         img.image = new_image
-#         self.label.pack()
- 
-#         btn = Button(self.parent, command=self.cameraStream, text='Test').pack(side='bottom', pady=50)
- 
-#     def update(self):
-#         img = PhotoImage(file='img2.png')
-#         self.label['image'] = img
-#         img.image = img
-
-
-#     def cameraStream(self):
-#         video_=cv2.VideoCapture(0)
-    
-#         if not video_.isOpened():
-#           print('Faild to open the camera')
-#         else:
-        
-#             while True:
-#                 ret, frame = video_.read()
-
-#                 img = ImageTk.PhotoImage(frame)
-#                 self.label['image'] = img
-#                 img.image = img
-
-#                 if cv2.waitKey(1) & 0xFF == ord('q'):
-#                     break
-
-
-# if __name__ == "__main__":
-    
-        
-#     root = Tk()
-          
-#     var = IntVar()
-     
-#     root.title("HamLyquerModell")
-#     root.minsize(800, 600)
-     
-#     menubar = Menu(root)
-#     root.config(menu = menubar)
-     
-#     filemenu = Menu(menubar, tearoff=0)
-#     filemenu.add_command(label = "Open", command = donothing)
-#     menubar.add_cascade(label="File", menu=filemenu)
-     
-     
-#     Picture(root)
-    
-#     # streamMode = Checkbutton(root, text = "Camera Stream Mode", command = donothing).grid(row=0, sticky=W)
-#     # streamMode = Checkbutton(root, text = "Camera Stream Mode", command = donothing)
-#     # streamMode.pack()
-       
-#     # frame = Frame(root)
-#     # frame.pack()
-#     # frame.place(anchor='center', relx=0.5, rely=0.5)
-
-#     # # Create an object of tkinter ImageTk
-#     # img = ImageTk.PhotoImage(Image.open("C:\\workingdir\\orvosirobotika\\HamLyquerModell\\data\\frame0.png"))
-
-#     # # Create a Label Widget to display the text or Image
-#     # label = Label(frame, image = img)
-#     # label.pack()
-    
-  
-     
-     
-#     root.mainloop()
-
-
-
-
 import tkinter as tk
 import cv2
 from PIL import ImageTk, Image
@@ -138,6 +7,10 @@ import threading
 import videoeditor as ve
 from tkinter import Tk     
 from tkinter.filedialog import askopenfilename
+import model as md
+import make_markup_images as mp
+import numpy as np
+
 
 def donothing():
     print("Action")
@@ -145,7 +18,13 @@ def donothing():
 class CameraApp:
     def __init__(self, window, video_source=0):
         self.window = window
-        self.window.title("Camera Stream")
+        self.window.title("HamLycurelModell")
+        
+        self.model = md.create_model()
+
+        if md.model_exists():
+            print("Load Model Weights")
+            self.model.load_weights(md.WEIGHTS_PATH)
 
         self.filePath = ""
         self.mode = "STREAM"
@@ -189,35 +68,47 @@ class CameraApp:
                 print("There is no active file selected!!")
             else:
                  if not self.is_streaming:
-                    ve.videoSlicer(self.filePath)               
+                    ve.videoSlicer(self.filePath, self.model)               
                     self.is_streaming = True
+                    self.video_capture_from_file = cv2.VideoCapture("video.mp4")
                     self.stream_thread = threading.Thread(target=self.update)
                     self.stream_thread.start() 
 
     def stop_stream(self):
         if self.is_streaming:
             self.is_streaming = False
-            self.stream_thread.join()
+            # self.stream_thread.join()
 
     def update(self):
         if(self.menu_bar.entrycget(2, "label") == "Active Mode: Stream"):
             if self.is_streaming:
                 ret, frame = self.video_capture.read()
                 if ret:
-                    self.current_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                    original_img = md.load_images_camera(frame)
+                    preds_test  = self.model.predict(original_img)
+                    overlayable = np.squeeze(((preds_test[0] > .5) * 255).astype(np.uint8))    
+                    modified_image = mp.create_overlayed_image(original_img[0], overlayable)
+                    
+                    self.current_frame = cv2.cvtColor(modified_image, cv2.COLOR_BGR2RGB)
                     self.current_frame = Image.fromarray(self.current_frame)
-                    self.current_frame = ImageTk.PhotoImage(self.current_frame)
+                    self.current_frame = ImageTk.PhotoImage(self.current_frame)                        
                     self.canvas.create_image(0, 0, image=self.current_frame, anchor=tk.NW)
-                self.window.after(15, self.update)
+                    self.window.after(15, self.update)
         else:            
              if self.is_streaming:
                 ret, frame = self.video_capture_from_file.read()
+                # print(ret)
                 if ret:
                     self.current_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
                     self.current_frame = Image.fromarray(self.current_frame)
                     self.current_frame = ImageTk.PhotoImage(self.current_frame)
                     self.canvas.create_image(0, 0, image=self.current_frame, anchor=tk.NW)
-                self.window.after(15, self.update)
+                    self.window.after(15, self.update)
+                else:
+                    self.video_capture_from_file.release()
+                    self.is_streaming = False
+                    print("Thread end")                    
+                    # self.stream_thread.join()
 
     def close_app(self):
         self.stop_stream()
@@ -229,7 +120,7 @@ class CameraApp:
             self.menu_bar.entryconfig("Active Mode: Stream", label = "Active Mode: Video from file")
             self.menu_bar.entryconfig("File", state = "active")
             self.start_button["text"] = "Start Conversion"
-            self.stop_button["text"] = tk.DISABLED
+            self.stop_button["state"] = tk.DISABLED
             self.mode = "CONVERSION"    
         else:
             self.menu_bar.entryconfig("Active Mode: Video from file", label = "Active Mode: Stream")

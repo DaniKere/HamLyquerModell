@@ -4,6 +4,7 @@ import os
 import numpy as np
 from skimage.io import imread
 from skimage.transform import resize
+from skimage.io import imshow
 
 # Image pathsSynthetic_MICCAI2020_dataset\others\Video_17\images
 TESTS_PATH =         'Synthetic_MICCAI2020_dataset/others'
@@ -187,4 +188,12 @@ def load_images(img_path, maxnum = -1):
         img =resize(img, (IMG_HEIGHT, IMG_WIDTH), mode='constant', preserve_range=True)
         X_test[n] = img
 
+    return X_test
+
+def load_images_camera(frame):
+    X_test = np.zeros((1, IMG_HEIGHT, IMG_WIDTH, IMG_CHANEL), dtype=np.uint8)    
+    frame = frame[:,:,:IMG_CHANEL]
+    imshow(frame)
+    img =resize(frame, (IMG_HEIGHT, IMG_WIDTH), mode='constant', preserve_range=True)
+    X_test[0] = img
     return X_test
