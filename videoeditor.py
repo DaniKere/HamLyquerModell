@@ -82,8 +82,8 @@ def videBuilder(imgArr):
    
     height, width, layers =  imgArr[0].shape
     size = (width,height)
-    
-    out = cv2.VideoWriter('video.mp4', cv2.VideoWriter_fourcc(*'MP4V'), 30, size)
+      
+    out = cv2.VideoWriter('video.mp4', cv2.VideoWriter_fourcc('m', 'p', '4', 'v'), 30, size)
 
     for i in range(len(imgArr)):
         out.write(imgArr[i])

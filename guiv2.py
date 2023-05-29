@@ -135,8 +135,9 @@ import tkinter as tk
 import cv2
 from PIL import ImageTk, Image
 import threading
-import multiprocessing 
-
+import videoeditor as ve
+from tkinter import Tk     
+from tkinter.filedialog import askopenfilename
 
 def donothing():
     print("Action")
@@ -146,18 +147,20 @@ class CameraApp:
         self.window = window
         self.window.title("Camera Stream")
 
+        self.filePath = ""
+        self.mode = "STREAM"
         self.video_source = video_source
         self.video_capture = cv2.VideoCapture(self.video_source)
+        self.video_capture_from_file = cv2.VideoCapture("video.mp4")
         self.current_frame = None
-        
-        
+              
         
         self.menu_bar = tk.Menu(window)
         self.window.config(menu=self.menu_bar)
 
         self.file_menu = tk.Menu(self.menu_bar, tearoff=False)
         self.menu_bar.add_cascade(label="File", menu=self.file_menu)
-        self.file_menu.add_command(label="Open File", command=donothing)#self.play_camera_stream)
+        self.file_menu.add_command(label="Open File", command=self.openFileBrowser)
         self.menu_bar.entryconfig("File", state = "disable")    
                   
         self.menu_bar.add_command(label="Active Mode: Stream", command=self.changeMode)
@@ -176,11 +179,20 @@ class CameraApp:
         self.stream_thread = None        
 
     def start_stream(self):
-        if not self.is_streaming:
-            self.is_streaming = True
-            self.stream_thread = threading.Thread(target=self.update)
-            self.stream_thread.start()
-          
+        if("STREAM" == self.mode):
+            if not self.is_streaming:
+                self.is_streaming = True
+                self.stream_thread = threading.Thread(target=self.update)
+                self.stream_thread.start()
+        else:
+            if(len(self.filePath) == 0):
+                print("There is no active file selected!!")
+            else:
+                 if not self.is_streaming:
+                    ve.videoSlicer(self.filePath)               
+                    self.is_streaming = True
+                    self.stream_thread = threading.Thread(target=self.update)
+                    self.stream_thread.start() 
 
     def stop_stream(self):
         if self.is_streaming:
@@ -188,14 +200,24 @@ class CameraApp:
             self.stream_thread.join()
 
     def update(self):
-        if self.is_streaming:
-            ret, frame = self.video_capture.read()
-            if ret:
-                self.current_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-                self.current_frame = Image.fromarray(self.current_frame)
-                self.current_frame = ImageTk.PhotoImage(self.current_frame)
-                self.canvas.create_image(0, 0, image=self.current_frame, anchor=tk.NW)
-            self.window.after(15, self.update)
+        if(self.menu_bar.entrycget(2, "label") == "Active Mode: Stream"):
+            if self.is_streaming:
+                ret, frame = self.video_capture.read()
+                if ret:
+                    self.current_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                    self.current_frame = Image.fromarray(self.current_frame)
+                    self.current_frame = ImageTk.PhotoImage(self.current_frame)
+                    self.canvas.create_image(0, 0, image=self.current_frame, anchor=tk.NW)
+                self.window.after(15, self.update)
+        else:            
+             if self.is_streaming:
+                ret, frame = self.video_capture_from_file.read()
+                if ret:
+                    self.current_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                    self.current_frame = Image.fromarray(self.current_frame)
+                    self.current_frame = ImageTk.PhotoImage(self.current_frame)
+                    self.canvas.create_image(0, 0, image=self.current_frame, anchor=tk.NW)
+                self.window.after(15, self.update)
 
     def close_app(self):
         self.stop_stream()
@@ -205,11 +227,23 @@ class CameraApp:
     def changeMode(self):
         if(self.menu_bar.entrycget(2, "label") == "Active Mode: Stream"):
             self.menu_bar.entryconfig("Active Mode: Stream", label = "Active Mode: Video from file")
-            self.menu_bar.entryconfig("File", state = "active")    
+            self.menu_bar.entryconfig("File", state = "active")
+            self.start_button["text"] = "Start Conversion"
+            self.stop_button["text"] = tk.DISABLED
+            self.mode = "CONVERSION"    
         else:
             self.menu_bar.entryconfig("Active Mode: Video from file", label = "Active Mode: Stream")
-            self.menu_bar.entryconfig("File", state = "disable")    
-        print("mode selector")    
+            self.menu_bar.entryconfig("File", state = "disable")
+            self.start_button["text"] = "Start Stream"
+            self.stop_button["state"] = tk.ACTIVE
+            self.mode = "STREAM"     
+        print("mode selector") 
+                
+    def openFileBrowser(self):
+        Tk().withdraw()
+        self.filePath = askopenfilename()
+        # Throw an error message if the file extension isn't correct.
+        print(self.filePath)   
         
 
 def main():
