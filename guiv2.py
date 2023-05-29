@@ -99,7 +99,7 @@ class CameraApp:
                 ret, frame = self.video_capture_from_file.read()
                 # print(ret)
                 if ret:
-                    self.current_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                    self.current_frame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB) #COLOR_BGR2RGB
                     self.current_frame = Image.fromarray(self.current_frame)
                     self.current_frame = ImageTk.PhotoImage(self.current_frame)
                     self.canvas.create_image(0, 0, image=self.current_frame, anchor=tk.NW)

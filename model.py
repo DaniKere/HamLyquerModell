@@ -193,7 +193,7 @@ def load_images(img_path, maxnum = -1):
 def load_images_camera(frame):
     X_test = np.zeros((1, IMG_HEIGHT, IMG_WIDTH, IMG_CHANEL), dtype=np.uint8)    
     frame = frame[:,:,:IMG_CHANEL]
-    imshow(frame)
+ #   imshow(frame)
     img =resize(frame, (IMG_HEIGHT, IMG_WIDTH), mode='constant', preserve_range=True)
     X_test[0] = img
     return X_test

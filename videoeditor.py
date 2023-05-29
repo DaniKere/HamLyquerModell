@@ -48,9 +48,11 @@ def videoSlicer(videoInputPath, model):
       
         # reading from frame
         ret,frame = cam.read()       
-  
+        
         if ret:
+            frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
             original_img = md.load_images_camera(frame)
+            # original_img = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
             preds_test  = model.predict(original_img)
             overlayable = np.squeeze(((preds_test[0] > .5) * 255).astype(np.uint8))    
             modified_image = mp.create_overlayed_image(original_img[0], overlayable)
@@ -60,7 +62,7 @@ def videoSlicer(videoInputPath, model):
   
             # writing the extracted images
             # cv2.imwrite(name, frame)
-            img_array.append(modified_image)
+            img_array.append(modified_image) #(original_img[0])
   
             # increasing counter so that it will show how many frames are created            
             currentframe += 1
