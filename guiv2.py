@@ -31,7 +31,7 @@ class CameraApp:
         self.video_source = video_source
         self.video_capture = cv2.VideoCapture(self.video_source)
         self.video_capture_from_file = cv2.VideoCapture("video.mp4")
-        self.current_frame = None
+        self.current_frame = None       
               
         
         self.menu_bar = tk.Menu(window)
@@ -78,12 +78,18 @@ class CameraApp:
         if self.is_streaming:
             self.is_streaming = False
             # self.stream_thread.join()
+        if self.mode != "STREAM":
+            self.video_capture_from_file = cv2.VideoCapture("video.mp4")
+            self.is_streaming = True
+            self.stop_button["state"] = tk.DISABLED
+            self.window.after(15, self.update)
 
     def update(self):
         if(self.menu_bar.entrycget(2, "label") == "Active Mode: Stream"):
             if self.is_streaming:
                 ret, frame = self.video_capture.read()
                 if ret:
+                    frame = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
                     original_img = md.load_images_camera(frame)
                     preds_test  = self.model.predict(original_img)
                     overlayable = np.squeeze(((preds_test[0] > .5) * 255).astype(np.uint8))    
@@ -107,7 +113,9 @@ class CameraApp:
                 else:
                     self.video_capture_from_file.release()
                     self.is_streaming = False
-                    print("Thread end")                    
+                    self.stop_button["state"] = tk.ACTIVE
+                    print("Thread end")
+                                        
                     # self.stream_thread.join()
 
     def close_app(self):
@@ -120,13 +128,14 @@ class CameraApp:
             self.menu_bar.entryconfig("Active Mode: Stream", label = "Active Mode: Video from file")
             self.menu_bar.entryconfig("File", state = "active")
             self.start_button["text"] = "Start Conversion"
+            self.stop_button["text"] = "Play again"
             self.stop_button["state"] = tk.DISABLED
             self.mode = "CONVERSION"    
         else:
             self.menu_bar.entryconfig("Active Mode: Video from file", label = "Active Mode: Stream")
             self.menu_bar.entryconfig("File", state = "disable")
             self.start_button["text"] = "Start Stream"
-            self.stop_button["state"] = tk.ACTIVE
+            self.stop_button["text"] = "Stop Stream"
             self.mode = "STREAM"     
         print("mode selector") 
                 
