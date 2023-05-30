@@ -99,7 +99,7 @@ def videoSlicer(videoInputPath, model):
 #         size = (width,height)
 #         img_array.append(img)
 
-#     out = cv2.VideoWriter('images\\video.mp4',cv2.VideoWriter_fourcc(*'MP4V'), 30, size)
+#     out = cv2.VideoWriter('images\\video1.mp4',cv2.VideoWriter_fourcc(*'MP4V'), 30, size)
 
 #     for i in range(len(img_array)):
 #         out.write(img_array[i])

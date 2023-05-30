@@ -28,7 +28,7 @@ def create_overlayed_image(original, overlayable):
     overlayable4[np.where((overlayable4==[255,255,255,255]).all(axis=2))] = OVERLAY_COLOR
     overlay = cv2.addWeighted(overlayable4, .3, edges, .7, 0)
 
-    return cv2.cvtColor(cv2.add(original, overlay), cv2.COLOR_BGRA2RGB)
+    return cv2.cvtColor(cv2.cvtColor(cv2.add(original, overlay), cv2.COLOR_BGRA2RGB), cv2.COLOR_RGB2BGR)
 
 
 def sample():

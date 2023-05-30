@@ -136,7 +136,8 @@ class CameraApp:
             self.menu_bar.entryconfig("File", state = "disable")
             self.start_button["text"] = "Start Stream"
             self.stop_button["text"] = "Stop Stream"
-            self.mode = "STREAM"     
+            self.mode = "STREAM" 
+            self.stop_button["state"] = tk.ACTIVE    
         print("mode selector") 
                 
     def openFileBrowser(self):
